@@ -35,7 +35,6 @@ die() {
 command -v curl >/dev/null || die "curl is required"
 command -v sudo >/dev/null || die "sudo is required"
 
-# Install the small utilities used for secure password generation and JSON editing.
 if ! command -v jq >/dev/null 2>&1 ||
    ! command -v openssl >/dev/null 2>&1; then
     if command -v apt-get >/dev/null 2>&1; then
@@ -74,8 +73,6 @@ echo "[3/10] Initializing client..."
 sw
 
 echo "[4/10] Initializing server files..."
-# Let the binary create its config and other files.
-# It may exit because the password has not been configured yet.
 if [[ ! -f "$SERVER_CONFIG" ]]; then
     (
         cd "$SERVER_DIR"
@@ -89,7 +86,6 @@ fi
 echo "[5/10] Generating temporary password..."
 PASSWORD="$(openssl rand -hex 32)"
 
-# Preserve the existing key's capitalization, if present.
 jq --arg password "$PASSWORD" '
     (keys | map(select(ascii_downcase == "password")) | .[0]) as $key
     | if $key == null

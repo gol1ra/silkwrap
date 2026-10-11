@@ -1421,6 +1421,7 @@ func cmdDaemon(c *Client, args []string) error {
 		if err := process.Signal(syscall.SIGTERM); err != nil {
 			return fmt.Errorf("failed to stop daemon: %w", err)
 		}
+
 		return nil
 	}
 

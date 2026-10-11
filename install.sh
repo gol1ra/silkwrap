@@ -48,5 +48,6 @@ case ":$PATH:" in
         ;;
 esac
 
+
 echo
 "${INSTALL_DIR}/${BINARY}"
