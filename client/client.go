@@ -773,19 +773,19 @@ func main() {
 func cmdHelp() {
 	fmt.Println(`  sw <command> [args]
   COMMANDS:
-	  BASIC:
-      auth <name> <password>     authenticate and get a token +
-      whoami                     currently logged in as which user +
-      users                      list registered users +
-      cfg                        current config and config path +
+    BASIC:
+      auth <name> <password>     authenticate and get a token
+      whoami                     currently logged in as which user
+      users                      list registered users
+      cfg                        current config and config path
       help                       this menu
       daemon start|stop          launches autodownload (later)
-      deluser <id>               deletes user with that id +
+      deluser <id>               deletes user with that id 
 
     INCOMING:
-      inbox                      list pending Files/Text/Dirs +
-      get all|<id> [<id>]        download Files/Text/Dirs +
-      del all|<id> [<id>]        delete Files/Text/Dirs +
+      inbox                      list pending Files/Text/Dirs
+      get all|<id> [<id>]        download Files/Text/Dirs
+      del all|<id> [<id>]        delete Files/Text/Dirs
 
     OUTGOING:
       file <path> all|<user_id> [<user_id>]    send a file
@@ -1343,10 +1343,14 @@ func runDaemon(c *Client) {
 	}
 }
 
-func cmdDaemon(_ *Client, args []string) error {
+func cmdDaemon(c *Client, args []string) error {
 
 	if len(args) == 0 {
 		return fmt.Errorf("USAGE daemon start|stop")
+	}
+
+	if !c.Config.AutoDownload {
+		return fmt.Errorf("AutoDownload is disabled")
 	}
 
 	if _, ok := map[string]struct{}{"start": {}, "stop": {}}[args[0]]; !ok {
