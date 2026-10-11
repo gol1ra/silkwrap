@@ -41,16 +41,33 @@ if [[ ! -f "$SERVER_CONFIG" ]]; then
     echo "Error: server config was not created." >&2
     exit 1
 fi
+SERVICE_FILE="/etc/systemd/system/silkwrap-server.service"
 
-echo
+sudo tee "$SERVICE_FILE" > /dev/null <<EOF
+[Unit]
+Description=Silkwrap Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=$SERVER_DIR
+ExecStart=$SERVER_BIN server
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+
 echo "Silkwrap server installed."
 echo "Server directory: $SERVER_DIR"
 echo "Config file:      $SERVER_CONFIG"
+echo "ADD PASSWORD TO SERVER CONFIG"
 echo
-echo "1. Edit the config and set your server password:"
-echo "   nano \"$SERVER_CONFIG\""
-echo
-echo "2. Start the server manually:"
+echo "Start the server manually:"
 echo "   cd \"$SERVER_DIR\" && ./silkwrap server"
-echo
-echo "Or configure systemd separately if you want the server to run in the background."
+echo "OR"
+echo "   sudo systemctl enable --now silkwrap-server"
+echo "   to start it as a persistent daemon"

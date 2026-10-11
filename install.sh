@@ -1,9 +1,11 @@
+bash
 #!/usr/bin/env bash
 set -euo pipefail
 
 REPO="ilosthope3/silkwrap"
 INSTALL_DIR="${HOME}/.local/bin"
 BINARY="sw"
+CLIENT_CONFIG="${HOME}/.silkwrap/client_config.json"
 
 if ! command -v curl >/dev/null 2>&1; then
     echo "Error: curl is required." >&2
@@ -43,11 +45,15 @@ echo "Installed Silkwrap to ${INSTALL_DIR}/${BINARY}"
 case ":$PATH:" in
     *":${INSTALL_DIR}:"*) ;;
     *)
-        echo "Add this to your shell profile if needed:"
+        echo 'Add this to your shell profile if needed:'
         echo 'export PATH="$HOME/.local/bin:$PATH"'
         ;;
 esac
 
-
 echo
-"${INSTALL_DIR}/${BINARY}"
+echo "Config path: \"$CLIENT_CONFIG\""
+echo "ADD SERVER TO CONFIG"
+echo 'Format: "https://127.0.0.1:7842/"'
+echo "copy format EXACTLY"
+echo "127.0.0.1 is localhost (serverside client) for remote use server ip"
+echo "check rsa fingerprint !!!!"

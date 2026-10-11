@@ -73,6 +73,8 @@ const (
 	AppDir = ".silkwrap"
 )
 
+var fingerprint string
+
 func (a APIResponse) String() string {
 	r, err := json.MarshalIndent(a, "", "  ")
 	if err != nil {
@@ -350,8 +352,6 @@ func (c *Client) Init() {
 	}
 
 	fingerprintPath := filepath.Join(dir, "server_fingerprint")
-
-	var fingerprint string
 
 	if _, err := os.Stat(fingerprintPath); os.IsNotExist(err) {
 		fmt.Println("No server fingerprint found")
@@ -1276,14 +1276,18 @@ func runDaemon(c *Client) {
 	defer signal.Stop(stop)
 
 	wsEndpoint := strings.TrimRight(c.Config.Server, "/") + "/ws"
-	wsEndpoint = strings.Replace(wsEndpoint, "http://", "ws://", 1)
 	wsEndpoint = strings.Replace(wsEndpoint, "https://", "wss://", 1)
 
 	headers := http.Header{}
 	headers.Set("Authorization", "Bearer "+c.Token)
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, headers)
+		dialer := websocket.Dialer{
+			TLSClientConfig: pinnedTLSConfig(fingerprint),
+		}
+
+		conn, _, err := dialer.Dial(wsEndpoint, headers)
+		// conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, headers)
 
 		if err != nil {
 			select {
