@@ -310,7 +310,7 @@ func (c *Client) Init() {
 	cfgPath := filepath.Join(dir, "client_config.json")
 	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
 		defaultCfg := ClientConfig{
-			Server:          "https://localhost:7842/",
+			Server:          "",
 			TimeoutSeconds:  5,
 			SaveDir:         "~/Downloads/silkwrap",
 			AutoDownload:    false,
@@ -324,6 +324,11 @@ func (c *Client) Init() {
 	}
 	if err := c.loadConfig(); err != nil {
 		fmt.Printf("Fatal: %v", err)
+		os.Exit(1)
+	}
+
+	if c.Config.Server == "" {
+		fmt.Printf("Server ip isnt initialised, edit the config to add it, template: https://0.0.0.0:7842/ (https is important, and make sure port matches server)")
 		os.Exit(1)
 	}
 
@@ -420,6 +425,8 @@ func (c *Client) loadConfig() error {
 	if strings.HasPrefix(c.Config.SaveDir, "~/") {
 		c.Config.SaveDir = filepath.Join(home, c.Config.SaveDir[2:])
 	}
+
+	c.Config.Server = strings.TrimRight(c.Config.Server, "/") + "/"
 
 	if err := os.MkdirAll(c.Config.SaveDir, 0o755); err != nil {
 		return err
@@ -673,8 +680,10 @@ func main() {
 	c.Init()
 
 	if len(os.Args) < 2 {
-		cmdHelp()
-		os.Exit(1)
+		fmt.Println("Silkwrap initialized.")
+		fmt.Println("Edit your config at ~/.silkwrap/client_config.json (or sw cfg to see path)")
+		fmt.Println("Run sw help for more info (or check the docs)")
+		return
 	}
 
 	cmd := os.Args[1]

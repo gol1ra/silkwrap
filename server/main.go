@@ -188,7 +188,7 @@ func mainInit() {
 		MaxFormSize:           500 << 20,
 		SaveDir:               "data",
 		DBPath:                "items.db",
-		Password:              "123",
+		Password:              "",
 		AllowCrossUserDelete:  true,
 		CleanIntervalMins:     60,
 		DeleteGracePeriodMins: 1,
@@ -335,6 +335,14 @@ func mainInit() {
 	}
 
 	fingerprint := sha256.Sum256(cert.Raw)
+
+	if appConfig.Password == "" {
+		fmt.Printf(
+			"no password found, path: %s\n",
+			configPath,
+		)
+		os.Exit(1)
+	}
 
 	fmt.Printf("TLS certificate fingerprint:\nSHA256:%X\n", fingerprint)
 }
@@ -1121,6 +1129,19 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	// no auth for public endpoint maybe ill add an authed + more detailed endpoint later
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+
+	if err := DB.PingContext(ctx); err != nil {
+		sendJSON(w, false, http.StatusInternalServerError, "db not responding")
+		return
+	}
+	sendJSON(w, true, http.StatusOK, "OK")
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func main() {
@@ -1142,6 +1163,7 @@ func main() {
 	http.HandleFunc("/download", handleDownload)
 	http.HandleFunc("/delete-user", handleDeleteUser)
 	http.HandleFunc("/ws", handleWebsocket)
+	http.HandleFunc("/health", handleHealth)
 
 	server := &http.Server{
 		Addr: appConfig.ServerPort,
