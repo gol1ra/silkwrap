@@ -50,6 +50,28 @@ case ":$PATH:" in
         ;;
 esac
 
+SERVICE_DIR="${HOME}/.config/systemd/user"
+SERVICE_FILE="${SERVICE_DIR}/silkwrap-daemon.service"
+
+mkdir -p "$SERVICE_DIR"
+
+cat > "$SERVICE_FILE" <<EOF
+[Unit]
+Description=Silkwrap Autodownload Startup
+
+[Service]
+Type=oneshot
+ExecStart=${INSTALL_DIR}/${BINARY} daemon start
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable silkwrap-daemon.service
+systemctl --user start silkwrap-daemon.service
+
 echo
 echo "Config path: \"$CLIENT_CONFIG\""
 echo "ADD SERVER TO CONFIG"
@@ -57,3 +79,5 @@ echo 'Format: "https://127.0.0.1:7842/"'
 echo "copy format EXACTLY"
 echo "127.0.0.1 is localhost (serverside client) for remote use server ip"
 echo "check rsa fingerprint !!!!"
+
+"${INSTALL_DIR}/${BINARY}"

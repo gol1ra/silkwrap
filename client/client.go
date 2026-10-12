@@ -909,7 +909,7 @@ func cmdDir(c *Client, args []string) error {
 		receivers = []string{}
 		devices, err := getDevices(c)
 		if err != nil {
-			fmt.Printf("error when fetching devices: %v\n", err)
+			return fmt.Errorf("error when fetching devices: %v\n", err)
 		}
 		for _, r := range devices {
 			receivers = append(receivers, r.Name)
@@ -1199,7 +1199,6 @@ func cmdDownload(c *Client, args []string) error {
 	if err := c.DownloadItems(fileItems); err != nil {
 		return fmt.Errorf("error downloading %w", err)
 	}
-	fmt.Println("OK")
 	return nil
 }
 
@@ -1339,7 +1338,7 @@ func runDaemon(c *Client) {
 		case <-dead:
 			conn.Close()
 
-			fmt.Printf("connection lost; retrying in %ds\n",
+			log.Printf("connection lost; retrying in %ds\n",
 				c.Config.DaemonRetrySecs)
 
 			time.Sleep(time.Second * time.Duration(c.Config.DaemonRetrySecs))

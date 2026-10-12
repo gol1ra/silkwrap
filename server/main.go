@@ -34,7 +34,6 @@ import (
 
 type (
 	Config struct {
-		TokensFile            string
 		SaveDir               string
 		MaxFormSize           int64
 		Password              string
@@ -191,7 +190,7 @@ func mainInit() {
 		Password:              "",
 		AllowCrossUserDelete:  true,
 		CleanIntervalMins:     60,
-		DeleteGracePeriodMins: 1,
+		DeleteGracePeriodMins: 60,
 		ServerPort:            ":7842",
 		QueryIntervalSecs:     5,
 		KeepAliveSecs:         30,
